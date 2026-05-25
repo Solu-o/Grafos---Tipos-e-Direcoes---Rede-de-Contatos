@@ -1,0 +1,168 @@
+using System;
+using System.Collections.Generic;
+
+namespace TrabalhoGrafos
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            RedeSocial rede = new RedeSocial();
+            bool executando = true;
+
+            Console.WriteLine("*Pessoas ja existente no FaceSapiens*");
+            rede.AdicionarPessoa("PG");
+            rede.AdicionarPessoa("Bob dozovao");
+            rede.AdicionarAmizade("PG", "Bob dozovao");
+
+            Console.Clear();
+            Console.WriteLine("========================================");
+            Console.WriteLine("             FaceSapiens                ");
+            Console.WriteLine("========================================");
+
+            while (executando)
+            {
+                Console.WriteLine("\nEscolha uma opcao:");
+                Console.WriteLine("1 - Cadastrar Pessoa (Vertice)");
+                Console.WriteLine("2 - Conectar Amigos (Aresta)");
+                Console.WriteLine("3 - Visualizar Estrutura do Grafo");
+                Console.WriteLine("4 - Verificar Amizade (Vizinhos)");
+                Console.WriteLine("0 - Sair");
+                Console.Write("Opcao: ");
+
+                string opcao = Console.ReadLine();
+
+                switch (opcao)
+                {
+                    case "1":
+                        Console.Write("\nDigite o nome da pessoa: ");
+                        string nome = Console.ReadLine();
+                        rede.AdicionarPessoa(nome);
+                        break;
+
+                    case "2":
+                        Console.Write("\nDigite o nome da primeira pessoa: ");
+                        string p1 = Console.ReadLine();
+                        Console.Write("Digite o nome da segunda pessoa: ");
+                        string p2 = Console.ReadLine();
+                        rede.AdicionarAmizade(p1, p2);
+                        break;
+
+                    case "3":
+                        rede.ExibirRede();
+                        break;
+
+                    case "4":
+                        Console.Write("\nDigite o primeiro nome: ");
+                        string busca1 = Console.ReadLine();
+                        Console.Write("Digite o segundo nome: ");
+                        string busca2 = Console.ReadLine();
+                        rede.VerificarAmizade(busca1, busca2);
+                        break;
+
+                    case "0":
+                        executando = false;
+                        Console.WriteLine("\nEncerrando o programa. Até mais!");
+                        break;
+
+                    default:
+                        Console.WriteLine("\nOpção inválida! Tente novamente.");
+                        break;
+                }
+
+                if (executando)
+                {
+                    Console.WriteLine("\nPressione qualquer tecla para continuar...");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+            }
+        }
+    }
+
+    public class RedeSocial
+    {
+        private Dictionary<string, List<string>> _adjacencias;
+
+        public RedeSocial()
+        {
+            _adjacencias = new Dictionary<string, List<string>>();
+        }
+
+        public void AdicionarPessoa(string nome)
+        {
+            if (string.IsNullOrWhiteSpace(nome))
+            {
+                Console.WriteLine("Nome invalido.");
+                return;
+            }
+
+            if (!_adjacencias.ContainsKey(nome))
+            {
+                _adjacencias[nome] = new List<string>();
+                Console.WriteLine($"[Sucesso] {nome} foi cadastrado(a) na rede.");
+            }
+            else
+            {
+                Console.WriteLine($"[Aviso] {nome} ja esta cadastrado(a).");
+            }
+        }
+
+        public void AdicionarAmizade(string pessoa1, string pessoa2)
+        {
+            if (_adjacencias.ContainsKey(pessoa1) && _adjacencias.ContainsKey(pessoa2))
+            {
+                if (pessoa1 == pessoa2)
+                {
+                    Console.WriteLine("[Erro] Uma pessoa nao pode ser amiga dela mesma no grafo.");
+                    return;
+                }
+
+                if (!_adjacencias[pessoa1].Contains(pessoa2)) _adjacencias[pessoa1].Add(pessoa2);
+                if (!_adjacencias[pessoa2].Contains(pessoa1)) _adjacencias[pessoa2].Add(pessoa1);
+                
+                Console.WriteLine($"[Sucesso] {pessoa1} e {pessoa2} agora sao amigos!");
+            }
+            else
+            {
+                Console.WriteLine("[Erro] Uma ou ambas pessoas nao existem no sistema. Cadastre-as primeiro.");
+            }
+        }
+
+        public void ExibirRede()
+        {
+            Console.WriteLine("\n--- ESTRUTURA DA REDE (Lista de Adjacencia) ---");
+            if (_adjacencias.Count == 0)
+            {
+                Console.WriteLine("A rede esta vazia.");
+                return;
+            }
+
+            foreach (var pessoa in _adjacencias)
+            {
+                Console.Write($"[{pessoa.Key}] -> ");
+                if (pessoa.Value.Count == 0)
+                {
+                    Console.Write("Sem conexoes.");
+                }
+                else
+                {
+                    Console.Write(string.Join(", ", pessoa.Value));
+                }
+                Console.WriteLine();
+            }
+        }
+
+        public void VerificarAmizade(string pessoa1, string pessoa2)
+        {
+            if (_adjacencias.ContainsKey(pessoa1) && _adjacencias[pessoa1].Contains(pessoa2))
+            {
+                Console.WriteLine($"\n[Resultado] Sim! Existe uma aresta entre {pessoa1} e {pessoa2}.");
+            }
+            else
+            {
+                Console.WriteLine($"\n[Resultado] Nao. {pessoa1} e {pessoa2} não possuem conexao direta.");
+            }
+        }
+    }
+}
